@@ -1,0 +1,47 @@
+package routes
+
+import (
+	"log"
+
+	"github.com/vgtom/vtoken/api/controller"
+	"github.com/vgtom/vtoken/api/repository"
+	"github.com/vgtom/vtoken/cron"
+	"github.com/vgtom/vtoken/lib"
+	"github.com/vgtom/vtoken/middlewares"
+)
+
+type AdminRoutes struct {
+	handler         lib.RequestHandler
+	tokenController controller.ITokenController
+	tokenRepository repository.ITokenRepository
+	validator       middlewares.IValidator
+	scheduler       cron.Cron
+}
+
+func (s AdminRoutes) Setup() {
+
+	if err := s.tokenRepository.Migrate(); err != nil {
+		log.Fatal("User migrate err", err)
+	}
+
+	s.scheduler.Job.Start()
+
+	adminRoutes := s.handler.Gin.Group("/api/v1/admin")
+	adminRoutes.Use(s.validator.Validate)
+	{
+		adminRoutes.GET("/token", s.tokenController.GetAll)
+		adminRoutes.POST("/token", s.tokenController.Create)
+		adminRoutes.GET("/token/:id", s.tokenController.GetByID)
+		adminRoutes.PUT("/token/:id/disable", s.tokenController.DisableTokenByID)
+	}
+}
+
+func NewAdminRoutes(handler lib.RequestHandler, tc controller.ITokenController, tr repository.ITokenRepository, validator middlewares.IValidator, scheduler cron.Cron) AdminRoutes {
+	return AdminRoutes{
+		handler:         handler,
+		tokenController: tc,
+		tokenRepository: tr,
+		validator:       validator,
+		scheduler:       scheduler,
+	}
+}

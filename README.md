@@ -1,7 +1,9 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # vtoken service
-Go service to allow generating and validating token. Admin can generate tokens, list tokens and invalidating tokens. There is a public api(throttled) which allows checking if token is valid or not
+Go service to allow generating and validating token. Admin can generate tokens, list tokens and invalidating tokens. There is a public api(throttled) which allows checking if token is valid or not.
+
+I have implemented it using the DI framework from uber fx to have seperation of concerns and modularity.
 
 ## Spinning up locally
 - install [MySql](https://www.mysql.com/downloads/) Or run mysql docker image
